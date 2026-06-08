@@ -1,0 +1,106 @@
+name: Go Build & Release Artifacts
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: write # Required to create/update releases
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache: true
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run Go Tests
+        run: go test -v -race -coverprofile=coverage.out ./...
+
+  build:
+    name: Build Binaries
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: [amd64, arm64]
+        include:
+          - goos: linux
+            ext: ""
+          - goos: darwin
+            ext: ""
+          - goos: windows
+            ext: ".exe"
+      fail-fast: false
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache: true
+
+      - name: Build Binary
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+          BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          VERSION=${{ github.ref_name }}
+          if [ "${{ github.ref_type }}" != "tag" ]; then
+            VERSION="dev-${COMMIT}"
+          fi
+          
+          mkdir -p dist
+          go build -ldflags "-X github.com/NEPT-CLOUD/nept-cli-go/cmd.Version=${VERSION} \
+                             -X github.com/NEPT-CLOUD/nept-cli-go/cmd.GitCommit=${COMMIT} \
+                             -X github.com/NEPT-CLOUD/nept-cli-go/cmd.BuildDate=${BUILD_DATE} \
+                             -s -w" \
+                   -o dist/nept-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.ext }} main.go
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nept-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/nept-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.ext }}
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-binaries
+          merge-multiple: true
+
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-binaries/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

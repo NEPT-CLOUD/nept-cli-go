@@ -49,15 +49,19 @@ Supports configuration files, environment variables, subcommands, and structured
 			appContainer.Logger = log
 			appContainer.Out = cmd.OutOrStdout()
 			appContainer.ErrOut = cmd.ErrOrStderr()
+			appContainer.In = cmd.InOrStdin()
 
 			return nil
 		},
 	}
 
+	var yesGlobal bool
+
 	// Define global persistent flags available to all subcommands
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default is $HOME/.nept.yaml)")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "enable verbose debug logging")
 	rootCmd.PersistentFlags().StringVarP(&format, "format", "f", "text", "output format (text, json)")
+	rootCmd.PersistentFlags().BoolVarP(&yesGlobal, "yes", "y", false, "Skip confirmation prompts")
 
 	// Register subcommands
 	rootCmd.AddCommand(NewVersionCmd(appContainer))
@@ -65,6 +69,15 @@ Supports configuration files, environment variables, subcommands, and structured
 	rootCmd.AddCommand(NewSchemaCmd(appContainer, rootCmd))
 	rootCmd.AddCommand(Auther(appContainer))
 	rootCmd.AddCommand(Login(appContainer))
+	rootCmd.AddCommand(NewStatusCmd(appContainer))
+	rootCmd.AddCommand(NewConfigCmd(appContainer))
+	rootCmd.AddCommand(NewDeployCmd(appContainer))
+	rootCmd.AddCommand(NewLogsCmd(appContainer))
+	rootCmd.AddCommand(NewAppCmd(appContainer))
+	rootCmd.AddCommand(NewDbCmd(appContainer))
+	rootCmd.AddCommand(NewRestartCmd(appContainer))
+	rootCmd.AddCommand(NewDeleteCmd(appContainer))
+	rootCmd.AddCommand(NewDomainCmd(appContainer))
 
 	return rootCmd
 }
@@ -74,6 +87,7 @@ func Execute() int {
 	appContainer := &app.App{
 		Out:    os.Stdout,
 		ErrOut: os.Stderr,
+		In:     os.Stdin,
 	}
 	rootCmd := NewRootCmd(appContainer)
 
