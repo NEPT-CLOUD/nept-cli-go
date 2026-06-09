@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/NEPT-CLOUD/nept-cli-go/internal/app"
-	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utls"
+	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -41,7 +41,7 @@ func NewRestartCmd(appContainer *app.App) *cobra.Command {
 			}
 
 			var resp RestartResponse
-			_, err = utls.CallAPI(appContainer, "POST", "/api/deploy/restart", payload, &resp)
+			_, err = utils.CallAPI(appContainer, "POST", "/api/deploy/restart", payload, &resp)
 			if err != nil {
 				return err
 			}
@@ -51,7 +51,7 @@ func NewRestartCmd(appContainer *app.App) *cobra.Command {
 				msg = fmt.Sprintf("Restarted %s", projectName)
 			}
 
-			textVal := fmt.Sprintf("%s%s%s %s", utls.ColorGreen, utls.SymbolOk, utls.ColorReset, msg)
+			textVal := fmt.Sprintf("%s%s%s %s", utils.ColorGreen, utils.SymbolOk, utils.ColorReset, msg)
 			return appContainer.PrintResult(textVal, resp)
 		},
 	}

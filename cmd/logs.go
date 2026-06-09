@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/NEPT-CLOUD/nept-cli-go/internal/app"
-	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utls"
+	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -24,10 +24,10 @@ func NewLogsCmd(appContainer *app.App) *cobra.Command {
 			}
 
 			if !jsonMode {
-				fmt.Fprintf(appContainer.Out, "%sStreaming logs for %s%s\n", utls.ColorBold, logsID, utls.ColorReset)
+				fmt.Fprintf(appContainer.Out, "%sStreaming logs for %s%s\n", utils.ColorBold, logsID, utils.ColorReset)
 			}
 
-			failed, entries, err := utls.StreamBuildLogs(appContainer, logsID, jsonMode)
+			failed, entries, err := utils.StreamBuildLogs(appContainer, logsID, jsonMode)
 			if err != nil {
 				return err
 			}
@@ -37,7 +37,7 @@ func NewLogsCmd(appContainer *app.App) *cobra.Command {
 					LogsID    string          `json:"logsId"`
 					Completed bool            `json:"completed"`
 					Failed    bool            `json:"failed"`
-					Entries   []utls.LogEntry `json:"entries"`
+					Entries   []utils.LogEntry `json:"entries"`
 				}
 				resp := logsResponse{
 					LogsID:    logsID,
@@ -54,10 +54,10 @@ func NewLogsCmd(appContainer *app.App) *cobra.Command {
 
 			fmt.Fprintln(appContainer.Out)
 			if failed {
-				fmt.Fprintf(appContainer.Out, "%s%s%s Build failed\n", utls.ColorRed, utls.SymbolErr, utls.ColorReset)
+				fmt.Fprintf(appContainer.Out, "%s%s%s Build failed\n", utils.ColorRed, utils.SymbolErr, utils.ColorReset)
 				os.Exit(1)
 			} else {
-				fmt.Fprintf(appContainer.Out, "%s%s%s Stream ended\n", utls.ColorGreen, utls.SymbolOk, utls.ColorReset)
+				fmt.Fprintf(appContainer.Out, "%s%s%s Stream ended\n", utils.ColorGreen, utils.SymbolOk, utils.ColorReset)
 			}
 
 			return nil
@@ -92,7 +92,7 @@ func NewAppLogsCmd(appContainer *app.App) *cobra.Command {
 			deploymentID := args[0]
 
 			var logs []AppLogEntry
-			_, err := utls.CallAPI(appContainer, "GET", "/api/deploymentLogs/"+deploymentID, nil, &logs)
+			_, err := utils.CallAPI(appContainer, "GET", "/api/deploymentLogs/"+deploymentID, nil, &logs)
 			if err != nil {
 				return err
 			}
@@ -110,7 +110,7 @@ func NewAppLogsCmd(appContainer *app.App) *cobra.Command {
 
 			var textVal strings.Builder
 			if len(logs) == 0 {
-				textVal.WriteString(utls.ColorDim + "No logs found." + utls.ColorReset)
+				textVal.WriteString(utils.ColorDim + "No logs found." + utils.ColorReset)
 			} else {
 				for i, entry := range logs {
 					if i > 0 {
@@ -118,9 +118,9 @@ func NewAppLogsCmd(appContainer *app.App) *cobra.Command {
 					}
 					timeStr := ""
 					if entry.Timestamp != "" {
-						timeStr = utls.ColorDim + "[" + entry.Timestamp + "] " + utls.ColorReset
+						timeStr = utils.ColorDim + "[" + entry.Timestamp + "] " + utils.ColorReset
 					}
-					color := utls.LevelColor(entry.Level)
+					color := utils.LevelColor(entry.Level)
 					textVal.WriteString(fmt.Sprintf("%s%s%s", timeStr, color, entry.Message))
 				}
 			}

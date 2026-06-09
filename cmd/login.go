@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/NEPT-CLOUD/nept-cli-go/internal/app"
-	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utls"
+	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utils"
 	"github.com/spf13/cobra"
 	"github.com/zalando/go-keyring"
 )
@@ -34,7 +34,7 @@ func Login(appContainer *app.App) *cobra.Command {
 				UserID string `json:"userId"`
 			}
 			var resp validateResp
-			_, err := utls.CallAPI(appContainer, "GET", "/api/keys/validate", nil, &resp)
+			_, err := utils.CallAPI(appContainer, "GET", "/api/keys/validate", nil, &resp)
 
 			// Restore config
 			if appContainer.Config != nil {

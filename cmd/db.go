@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/NEPT-CLOUD/nept-cli-go/internal/app"
-	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utls"
+	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -71,7 +71,7 @@ func NewDbDeployCmd(appContainer *app.App) *cobra.Command {
 			// Interactive Prompts if in Human/Interactive mode and flags are not specified
 			dbType := typeFlag
 			if dbType == "" && appContainer.Config != nil && appContainer.Config.Format != "json" {
-				dbType = utls.AskChoice(appContainer.In, appContainer.Out, true, "Database type", dbTypes, "postgres")
+				dbType = utils.AskChoice(appContainer.In, appContainer.Out, true, "Database type", dbTypes, "postgres")
 			}
 			if dbType == "" {
 				dbType = "postgres"
@@ -90,7 +90,7 @@ func NewDbDeployCmd(appContainer *app.App) *cobra.Command {
 
 			appName := nameFlag
 			if appName == "" && appContainer.Config != nil && appContainer.Config.Format != "json" {
-				appName = utls.Ask(appContainer.In, appContainer.Out, true, "Database app name", "my-"+dbType)
+				appName = utils.Ask(appContainer.In, appContainer.Out, true, "Database app name", "my-"+dbType)
 			}
 			appName = sanitizeName(appName)
 
@@ -101,7 +101,7 @@ func NewDbDeployCmd(appContainer *app.App) *cobra.Command {
 
 			username := userFlag
 			if username == "" && appContainer.Config != nil && appContainer.Config.Format != "json" {
-				username = utls.Ask(appContainer.In, appContainer.Out, true, "Database username", "admin")
+				username = utils.Ask(appContainer.In, appContainer.Out, true, "Database username", "admin")
 			}
 			if username == "" {
 				username = "admin"
@@ -123,20 +123,20 @@ func NewDbDeployCmd(appContainer *app.App) *cobra.Command {
 			}
 
 			var resp DbDeployResponse
-			_, err = utls.CallAPI(appContainer, "POST", "/api/deploy-db", payload, &resp)
+			_, err = utils.CallAPI(appContainer, "POST", "/api/deploy-db", payload, &resp)
 			if err != nil {
 				return err
 			}
 
 			var textVal strings.Builder
-			textVal.WriteString(fmt.Sprintf("%s%s%s Database '%s' deployed\n\n", utls.ColorGreen, utls.SymbolOk, utls.ColorReset, appName))
-			textVal.WriteString(fmt.Sprintf("  %s%-12s%s %s\n", utls.ColorDim, "id", utls.ColorReset, resp.DatabaseId))
-			textVal.WriteString(fmt.Sprintf("  %s%-12s%s %s\n", utls.ColorDim, "host", utls.ColorReset, resp.Host))
-			textVal.WriteString(fmt.Sprintf("  %s%-12s%s %d\n", utls.ColorDim, "port", utls.ColorReset, resp.Port))
-			textVal.WriteString(fmt.Sprintf("  %s%-12s%s %s\n", utls.ColorDim, "username", utls.ColorReset, resp.Username))
-			textVal.WriteString(fmt.Sprintf("  %s%-12s%s %s%s%s\n", utls.ColorDim, "password", utls.ColorReset, utls.ColorYellow, resp.Password, utls.ColorReset))
-			textVal.WriteString(fmt.Sprintf("  %s%-12s%s %s%s%s\n\n", utls.ColorDim, "url", utls.ColorReset, utls.ColorCyan, resp.ConnectionUrl, utls.ColorReset))
-			textVal.WriteString(fmt.Sprintf("%s%s Store the password now — it cannot be retrieved later.%s", utls.ColorYellow, utls.SymbolWarn, utls.ColorReset))
+			textVal.WriteString(fmt.Sprintf("%s%s%s Database '%s' deployed\n\n", utils.ColorGreen, utils.SymbolOk, utils.ColorReset, appName))
+			textVal.WriteString(fmt.Sprintf("  %s%-12s%s %s\n", utils.ColorDim, "id", utils.ColorReset, resp.DatabaseId))
+			textVal.WriteString(fmt.Sprintf("  %s%-12s%s %s\n", utils.ColorDim, "host", utils.ColorReset, resp.Host))
+			textVal.WriteString(fmt.Sprintf("  %s%-12s%s %d\n", utils.ColorDim, "port", utils.ColorReset, resp.Port))
+			textVal.WriteString(fmt.Sprintf("  %s%-12s%s %s\n", utils.ColorDim, "username", utils.ColorReset, resp.Username))
+			textVal.WriteString(fmt.Sprintf("  %s%-12s%s %s%s%s\n", utils.ColorDim, "password", utils.ColorReset, utils.ColorYellow, resp.Password, utils.ColorReset))
+			textVal.WriteString(fmt.Sprintf("  %s%-12s%s %s%s%s\n\n", utils.ColorDim, "url", utils.ColorReset, utils.ColorCyan, resp.ConnectionUrl, utils.ColorReset))
+			textVal.WriteString(fmt.Sprintf("%s%s Store the password now — it cannot be retrieved later.%s", utils.ColorYellow, utils.SymbolWarn, utils.ColorReset))
 
 			return appContainer.PrintResult(textVal.String(), resp)
 		},

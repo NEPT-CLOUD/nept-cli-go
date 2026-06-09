@@ -1,4 +1,4 @@
-package utls
+package utils
 
 import (
 	"os"
@@ -8,7 +8,7 @@ import (
 
 // NodeEnv holds the value of the NODE_ENV environment variable.
 var NodeEnv string
-var BackendUrl string
+var BackendUrl string = "https://server.nept.cloud"
 
 func init() {
 	// Load environment variables from .env file if it exists.

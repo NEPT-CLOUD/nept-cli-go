@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/NEPT-CLOUD/nept-cli-go/internal/app"
-	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utls"
+	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -64,26 +64,26 @@ func NewDomainAddCmd(appContainer *app.App) *cobra.Command {
 			}
 
 			var resp DomainResponse
-			_, err := utls.CallAPI(appContainer, "POST", "/api/domains/domains", payload, &resp)
+			_, err := utils.CallAPI(appContainer, "POST", "/api/domains/domains", payload, &resp)
 			if err != nil {
 				return err
 			}
 
 			var textVal strings.Builder
-			textVal.WriteString(fmt.Sprintf("%s%s%s Domain %s registered\n\n", utls.ColorGreen, utls.SymbolOk, utls.ColorReset, domain))
-			textVal.WriteString(fmt.Sprintf("%sAdd these DNS records:%s\n", utls.ColorBold, utls.ColorReset))
+			textVal.WriteString(fmt.Sprintf("%s%s%s Domain %s registered\n\n", utils.ColorGreen, utils.SymbolOk, utils.ColorReset, domain))
+			textVal.WriteString(fmt.Sprintf("%sAdd these DNS records:%s\n", utils.ColorBold, utils.ColorReset))
 
 			if resp.OwnershipVerification != nil {
 				o := resp.OwnershipVerification
-				textVal.WriteString(fmt.Sprintf("  %s%-6s%s %s %s %s%s%s\n", utls.ColorDim, o.Type, utls.ColorReset, o.Name, utls.SymbolArrow, utls.ColorCyan, o.Value, utls.ColorReset))
+				textVal.WriteString(fmt.Sprintf("  %s%-6s%s %s %s %s%s%s\n", utils.ColorDim, o.Type, utils.ColorReset, o.Name, utils.SymbolArrow, utils.ColorCyan, o.Value, utils.ColorReset))
 			}
 			if resp.OwnershipTxt != nil {
 				o := resp.OwnershipTxt
-				textVal.WriteString(fmt.Sprintf("  %s%-6s%s %s %s %s%s%s\n", utls.ColorDim, o.Type, utls.ColorReset, o.Name, utls.SymbolArrow, utls.ColorCyan, o.Value, utls.ColorReset))
+				textVal.WriteString(fmt.Sprintf("  %s%-6s%s %s %s %s%s%s\n", utils.ColorDim, o.Type, utils.ColorReset, o.Name, utils.SymbolArrow, utils.ColorCyan, o.Value, utils.ColorReset))
 			}
 			if resp.SSLValidation != nil {
 				o := resp.SSLValidation
-				textVal.WriteString(fmt.Sprintf("  %s%-6s%s %s %s %s%s%s\n", utls.ColorDim, o.Type, utls.ColorReset, o.Name, utls.SymbolArrow, utls.ColorCyan, o.Value, utls.ColorReset))
+				textVal.WriteString(fmt.Sprintf("  %s%-6s%s %s %s %s%s%s\n", utils.ColorDim, o.Type, utils.ColorReset, o.Name, utils.SymbolArrow, utils.ColorCyan, o.Value, utils.ColorReset))
 			}
 
 			textVal.WriteString("\n")
@@ -97,7 +97,7 @@ func NewDomainAddCmd(appContainer *app.App) *cobra.Command {
 					sslMethod = resp.SSL.Method
 				}
 			}
-			textVal.WriteString(fmt.Sprintf("%sSSL: %s (%s)%s", utls.ColorDim, sslStatus, sslMethod, utls.ColorReset))
+			textVal.WriteString(fmt.Sprintf("%sSSL: %s (%s)%s", utils.ColorDim, sslStatus, sslMethod, utils.ColorReset))
 
 			return appContainer.PrintResult(textVal.String(), resp)
 		},

@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/NEPT-CLOUD/nept-cli-go/internal/app"
-	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utls"
+	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -103,25 +103,25 @@ func NewDeployCmd(appContainer *app.App) *cobra.Command {
 			}
 
 			// 2. Resolve framework & git context
-			preset := utls.DetectFramework(absDir)
+			preset := utils.DetectFramework(absDir)
 			if fwFlag != "" {
-				preset = utls.PresetFor(fwFlag)
+				preset = utils.PresetFor(fwFlag)
 			} else if appContainer.Config != nil && appContainer.Config.Format != "json" && !yesFlag {
 				// We can implement interactive confirm here if needed
-				confirmMsg := fmt.Sprintf("Detected framework: %s%s%s. Use it?", utls.ColorBold, preset.Framework, utls.ColorReset)
-				if !utls.Confirm(appContainer.In, appContainer.Out, true, confirmMsg, true) {
-					selected := utls.AskChoice(appContainer.In, appContainer.Out, true, "Select framework", utls.FrameworkNames, preset.Framework)
-					preset = utls.PresetFor(selected)
+				confirmMsg := fmt.Sprintf("Detected framework: %s%s%s. Use it?", utils.ColorBold, preset.Framework, utils.ColorReset)
+				if !utils.Confirm(appContainer.In, appContainer.Out, true, confirmMsg, true) {
+					selected := utils.AskChoice(appContainer.In, appContainer.Out, true, "Select framework", utils.FrameworkNames, preset.Framework)
+					preset = utils.PresetFor(selected)
 				}
 			}
 
-			git := utls.ResolveGitInfo(absDir)
+			git := utils.ResolveGitInfo(absDir)
 
 			projectName := sanitizeName(filepath.Base(absDir))
 			if nameFlag != "" {
 				projectName = sanitizeName(nameFlag)
 			} else if appContainer.Config != nil && appContainer.Config.Format != "json" && !yesFlag {
-				projectName = sanitizeName(utls.Ask(appContainer.In, appContainer.Out, true, "Project name", projectName))
+				projectName = sanitizeName(utils.Ask(appContainer.In, appContainer.Out, true, "Project name", projectName))
 			}
 
 			port := preset.Port
@@ -152,12 +152,12 @@ func NewDeployCmd(appContainer *app.App) *cobra.Command {
 			if appContainer.Config != nil && appContainer.Config.Format != "json" {
 				fmt.Fprintf(appContainer.Out, "Packaging project...\n")
 			}
-			zipRes, err := utls.ZipDirectory(absDir)
+			zipRes, err := utils.ZipDirectory(absDir)
 			if err != nil {
 				return err
 			}
 			if appContainer.Config != nil && appContainer.Config.Format != "json" {
-				fmt.Fprintf(appContainer.Out, "%s%s%s Packaged %d files (%s)\n", utls.ColorGreen, utls.SymbolOk, utls.ColorReset, zipRes.FileCount, utls.HumanBytes(zipRes.Bytes))
+				fmt.Fprintf(appContainer.Out, "%s%s%s Packaged %d files (%s)\n", utils.ColorGreen, utils.SymbolOk, utils.ColorReset, zipRes.FileCount, utils.HumanBytes(zipRes.Bytes))
 			}
 
 			// 4. Upload & build
@@ -191,20 +191,20 @@ func NewDeployCmd(appContainer *app.App) *cobra.Command {
 			}
 
 			var resp DeployResponse
-			_, err = utls.CallAPI(appContainer, "POST", "/api/deploy", payload, &resp)
+			_, err = utils.CallAPI(appContainer, "POST", "/api/deploy", payload, &resp)
 			if err != nil {
 				return err
 			}
 
 			if appContainer.Config != nil && appContainer.Config.Format != "json" {
-				fmt.Fprintf(appContainer.Out, "%s%s%s Build started\n", utls.ColorGreen, utls.SymbolOk, utls.ColorReset)
+				fmt.Fprintf(appContainer.Out, "%s%s%s Build started\n", utils.ColorGreen, utils.SymbolOk, utils.ColorReset)
 				fmt.Fprintln(appContainer.Out)
-				fmt.Fprintf(appContainer.Out, "  %s%-12s%s %s\n", utls.ColorDim, "project", utls.ColorReset, projectName)
+				fmt.Fprintf(appContainer.Out, "  %s%-12s%s %s\n", utils.ColorDim, "project", utils.ColorReset, projectName)
 				if resp.DeploymentId != "" {
-					fmt.Fprintf(appContainer.Out, "  %s%-12s%s %s\n", utls.ColorDim, "deployment", utls.ColorReset, resp.DeploymentId)
+					fmt.Fprintf(appContainer.Out, "  %s%-12s%s %s\n", utils.ColorDim, "deployment", utils.ColorReset, resp.DeploymentId)
 				}
 				if resp.LogsID != "" {
-					fmt.Fprintf(appContainer.Out, "  %s%-12s%s %s\n", utls.ColorDim, "logs", utls.ColorReset, resp.LogsID)
+					fmt.Fprintf(appContainer.Out, "  %s%-12s%s %s\n", utils.ColorDim, "logs", utils.ColorReset, resp.LogsID)
 				}
 				fmt.Fprintln(appContainer.Out)
 			}
@@ -215,13 +215,13 @@ func NewDeployCmd(appContainer *app.App) *cobra.Command {
 
 			if resp.LogsID == "" || noFollowFlag {
 				if resp.Domain != "" {
-					fmt.Fprintf(appContainer.Out, "%s%s%s https://%s\n", utls.ColorGreen, utls.SymbolOk, utls.ColorReset, resp.Domain)
+					fmt.Fprintf(appContainer.Out, "%s%s%s https://%s\n", utils.ColorGreen, utils.SymbolOk, utils.ColorReset, resp.Domain)
 				}
 				return nil
 			}
 
-			fmt.Fprintf(appContainer.Out, "%sBuild logs:%s\n", utls.ColorBold, utls.ColorReset)
-			failed, _, err := utls.StreamBuildLogs(appContainer, resp.LogsID, false)
+			fmt.Fprintf(appContainer.Out, "%sBuild logs:%s\n", utils.ColorBold, utils.ColorReset)
+			failed, _, err := utils.StreamBuildLogs(appContainer, resp.LogsID, false)
 			if err != nil {
 				return err
 			}
@@ -231,9 +231,9 @@ func NewDeployCmd(appContainer *app.App) *cobra.Command {
 				return fmt.Errorf("Build failed — see logs above")
 			}
 
-			fmt.Fprintf(appContainer.Out, "%s%s%s Deployed\n", utls.ColorGreen, utls.SymbolOk, utls.ColorReset)
+			fmt.Fprintf(appContainer.Out, "%s%s%s Deployed\n", utils.ColorGreen, utils.SymbolOk, utils.ColorReset)
 			if resp.Domain != "" {
-				fmt.Fprintf(appContainer.Out, "  %s%s%s https://%s\n", utls.ColorCyan, utls.SymbolArrow, utls.ColorReset, resp.Domain)
+				fmt.Fprintf(appContainer.Out, "  %s%s%s https://%s\n", utils.ColorCyan, utils.SymbolArrow, utils.ColorReset, resp.Domain)
 			}
 
 			return nil

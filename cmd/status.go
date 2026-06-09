@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/NEPT-CLOUD/nept-cli-go/internal/app"
-	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utls"
+	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -25,18 +25,18 @@ func NewStatusCmd(appContainer *app.App) *cobra.Command {
 			apiURL := "https://server.nept.cloud"
 			if appContainer.Config != nil && appContainer.Config.APIURL != "" {
 				apiURL = appContainer.Config.APIURL
-			} else if utls.BackendUrl != "" {
-				apiURL = utls.BackendUrl
+			} else if utils.BackendUrl != "" {
+				apiURL = utils.BackendUrl
 			}
 
-			_, err := utls.CallAPI(appContainer, "GET", "/api/health", nil, &resp)
+			_, err := utils.CallAPI(appContainer, "GET", "/api/health", nil, &resp)
 			if err != nil {
 				return err
 			}
 			resp.Connected = true
 
 			var textVal strings.Builder
-			textVal.WriteString(fmt.Sprintf("%s%s%s %sEngine online%s  %s\n", utls.ColorGreen, utls.SymbolOk, utls.ColorReset, utls.ColorBold, utls.ColorReset, apiURL))
+			textVal.WriteString(fmt.Sprintf("%s%s%s %sEngine online%s  %s\n", utils.ColorGreen, utils.SymbolOk, utils.ColorReset, utils.ColorBold, utils.ColorReset, apiURL))
 			if resp.Status != "" {
 				textVal.WriteString(fmt.Sprintf("  status    %s\n", resp.Status))
 			}

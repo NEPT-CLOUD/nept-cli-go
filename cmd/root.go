@@ -80,6 +80,7 @@ please go to the skill folder at: %s`, skillPath),
 	rootCmd.AddCommand(NewSchemaCmd(appContainer, rootCmd))
 	rootCmd.AddCommand(Auther(appContainer))
 	rootCmd.AddCommand(Login(appContainer))
+	rootCmd.AddCommand(NewLogoutCmd(appContainer))
 	rootCmd.AddCommand(NewStatusCmd(appContainer))
 	rootCmd.AddCommand(NewConfigCmd(appContainer))
 	rootCmd.AddCommand(NewDeployCmd(appContainer))

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utls"
+	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utils"
 	"github.com/spf13/viper"
 )
 
@@ -40,7 +40,7 @@ func Load(configFilePath string) (*Config, error) {
 	v.SetDefault("environment", "production")
 	v.SetDefault("api_key", "")
 	v.SetDefault("user_id", "")
-	v.SetDefault("api_url", utls.BackendUrl)
+	v.SetDefault("api_url", utils.BackendUrl)
 	v.SetDefault("verbose", false)
 	v.SetDefault("format", "text")
 
@@ -92,7 +92,7 @@ func SaveDefault(path string) error {
 	v.Set("environment", "production")
 	v.Set("api_key", "your_api_key_here")
 	v.Set("user_id", "your_user_id_here")
-	v.Set("api_url", utls.BackendUrl)
+	v.Set("api_url", utils.BackendUrl)
 	v.Set("verbose", false)
 	v.Set("format", "text")
 

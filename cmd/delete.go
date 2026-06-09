@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/NEPT-CLOUD/nept-cli-go/internal/app"
-	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utls"
+	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -34,9 +34,9 @@ func NewDeleteCmd(appContainer *app.App) *cobra.Command {
 
 			// Interactive confirm if TTY, unless yesFlag is set
 			if appContainer.Config != nil && appContainer.Config.Format != "json" && !yesFlag {
-				confirmMsg := fmt.Sprintf("Delete %s%s%s and all its resources?", utls.ColorBold, projectName, utls.ColorReset)
-				if !utls.Confirm(appContainer.In, appContainer.Out, true, confirmMsg, false) {
-					fmt.Fprintln(appContainer.Out, utls.ColorDim+"Aborted."+utls.ColorReset)
+				confirmMsg := fmt.Sprintf("Delete %s%s%s and all its resources?", utils.ColorBold, projectName, utils.ColorReset)
+				if !utils.Confirm(appContainer.In, appContainer.Out, true, confirmMsg, false) {
+					fmt.Fprintln(appContainer.Out, utils.ColorDim+"Aborted."+utils.ColorReset)
 					return nil
 				}
 			}
@@ -51,7 +51,7 @@ func NewDeleteCmd(appContainer *app.App) *cobra.Command {
 			}
 
 			var resp DeleteResponse
-			_, err = utls.CallAPI(appContainer, "DELETE", "/api/deploy", payload, &resp)
+			_, err = utils.CallAPI(appContainer, "DELETE", "/api/deploy", payload, &resp)
 			if err != nil {
 				return err
 			}
@@ -61,7 +61,7 @@ func NewDeleteCmd(appContainer *app.App) *cobra.Command {
 				msg = fmt.Sprintf("Deleted %s", projectName)
 			}
 
-			textVal := fmt.Sprintf("%s%s%s %s", utls.ColorGreen, utls.SymbolOk, utls.ColorReset, msg)
+			textVal := fmt.Sprintf("%s%s%s %s", utils.ColorGreen, utils.SymbolOk, utils.ColorReset, msg)
 			return appContainer.PrintResult(textVal, resp)
 		},
 	}

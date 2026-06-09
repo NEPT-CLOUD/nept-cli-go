@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/NEPT-CLOUD/nept-cli-go/internal/app"
-	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utls"
+	"github.com/NEPT-CLOUD/nept-cli-go/internal/app/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -101,7 +101,7 @@ func NewConfigSetCmd(appContainer *app.App) *cobra.Command {
 			}
 			resp := setResponse{Success: true, Key: key, Value: val}
 
-			textVal := fmt.Sprintf("%s%s%s Set %s%s%s = %s", utls.ColorGreen, utls.SymbolOk, utls.ColorReset, utls.ColorBold, key, utls.ColorReset, val)
+			textVal := fmt.Sprintf("%s%s%s Set %s%s%s = %s", utils.ColorGreen, utils.SymbolOk, utils.ColorReset, utils.ColorBold, key, utils.ColorReset, val)
 			return appContainer.PrintResult(textVal, resp)
 		},
 	}
@@ -145,7 +145,7 @@ func NewConfigGetCmd(appContainer *app.App) *cobra.Command {
 
 			textVal := val
 			if val == "" {
-				textVal = utls.ColorDim + "(not set)" + utls.ColorReset
+				textVal = utils.ColorDim + "(not set)" + utils.ColorReset
 			}
 
 			return appContainer.PrintResult(textVal, resp)
@@ -215,26 +215,26 @@ func NewConfigListCmd(appContainer *app.App) *cobra.Command {
 			}
 
 			var textVal strings.Builder
-			textVal.WriteString(fmt.Sprintf("%sEffective configuration%s\n", utls.ColorBold, utls.ColorReset))
-			textVal.WriteString(fmt.Sprintf("  api_url   %s %s(%s)%s\n", apiURL, utls.ColorDim, urlSrc, utls.ColorReset))
+			textVal.WriteString(fmt.Sprintf("%sEffective configuration%s\n", utils.ColorBold, utils.ColorReset))
+			textVal.WriteString(fmt.Sprintf("  api_url   %s %s(%s)%s\n", apiURL, utils.ColorDim, urlSrc, utils.ColorReset))
 			
 			uidStr := userID
 			if uidStr == "" {
-				uidStr = utls.ColorDim + "(not set)" + utls.ColorReset
+				uidStr = utils.ColorDim + "(not set)" + utils.ColorReset
 			}
-			textVal.WriteString(fmt.Sprintf("  user_id   %s %s(%s)%s\n", uidStr, utls.ColorDim, uidSrc, utls.ColorReset))
+			textVal.WriteString(fmt.Sprintf("  user_id   %s %s(%s)%s\n", uidStr, utils.ColorDim, uidSrc, utils.ColorReset))
 
 			keyStr := apiKey
 			if keyStr == "" {
-				keyStr = utls.ColorDim + "(not set)" + utls.ColorReset
+				keyStr = utils.ColorDim + "(not set)" + utils.ColorReset
 			} else {
 				// Mask key for safety in text output
 				if len(keyStr) > 12 {
 					keyStr = keyStr[:8] + "..." + keyStr[len(keyStr)-4:]
 				}
 			}
-			textVal.WriteString(fmt.Sprintf("  api_key   %s %s(%s)%s\n", keyStr, utls.ColorDim, keySrc, utls.ColorReset))
-			textVal.WriteString(fmt.Sprintf("%s  file      %s%s", utls.ColorDim, configFile, utls.ColorReset))
+			textVal.WriteString(fmt.Sprintf("  api_key   %s %s(%s)%s\n", keyStr, utils.ColorDim, keySrc, utils.ColorReset))
+			textVal.WriteString(fmt.Sprintf("%s  file      %s%s", utils.ColorDim, configFile, utils.ColorReset))
 
 			return appContainer.PrintResult(textVal.String(), resp)
 		},

@@ -11,6 +11,7 @@ A production-grade, highly scalable Go Command-Line Interface (CLI) designed to 
 4. [Subcommand Reference & Examples](#4-subcommand-reference--examples)
     - [`nept status`](#nept-status)
     - [`nept login`](#nept-login)
+    - [`nept logout`](#nept-logout)
     - [`nept config`](#nept-config)
     - [`nept deploy`](#nept-deploy)
     - [`nept logs` & `nept app logs`](#nept-logs--nept-app-logs)
@@ -43,6 +44,24 @@ You can run the installer PowerShell script directly:
 ```powershell
 powershell -c "irm https://raw.githubusercontent.com/NEPT-CLOUD/nept-cli-go/main/install.ps1 | iex"
 ```
+
+### Upgrading
+
+To upgrade the Nept CLI to the latest version, run the appropriate script for your OS:
+
+#### macOS / Linux (Shell)
+```bash
+curl -fsSL https://raw.githubusercontent.com/NEPT-CLOUD/nept-cli-go/main/upgrade.sh | sh
+```
+
+#### Windows (PowerShell)
+```powershell
+powershell -c "irm https://raw.githubusercontent.com/NEPT-CLOUD/nept-cli-go/main/upgrade.ps1 | iex"
+```
+
+You can also run the local script directly or pass `-f`/`--force` to force reinstalling the latest version:
+* macOS/Linux: `./upgrade.sh` (or `./upgrade.sh --force`)
+* Windows: `.\upgrade.ps1` (or `.\upgrade.ps1 -Force`)
 
 ### Uninstallation
 
@@ -127,6 +146,26 @@ Authenticates with an API Key, verifies validity with the backend, retrieves the
 # Validates key and caches both key and userId
 $ nept login -k nept_8d6468ec36ab3601d1fc7c2c9ba6cf5dbee349bba62c8904217dd208603335cb
 Login successful. API key saved to keychain.
+```
+
+---
+
+### `nept logout`
+Logs out the user by clearing the saved API key and User ID credentials from the OS Keychain.
+
+#### Human Mode Example:
+```bash
+$ nept logout
+Logout successful. Credentials cleared from keychain.
+```
+
+#### Agent Mode Example:
+```bash
+$ nept logout --format json
+{
+  "status": "success",
+  "message": "Credentials cleared from keychain."
+}
 ```
 
 ---
@@ -315,10 +354,10 @@ These patterns are parsed, anchored or unanchored, and translated into compiled 
 
 ## 7. Cycle-Free Clean Architecture
 
-To avoid Go package import loops (`internal/app` importing `internal/config`, and `internal/app/utls` importing `internal/app` to call `App`), the utility package defines a decoupled `APIContainer` interface:
+To avoid Go package import loops (`internal/app` importing `internal/config`, and `internal/app/utils` importing `internal/app` to call `App`), the utility package defines a decoupled `APIContainer` interface:
 
 ```go
-// Located in internal/app/utls/api.go
+// Located in internal/app/utils/api.go
 type APIContainer interface {
 	GetAPIURL() string
 	ResolveAPIKey() (string, error)
@@ -341,7 +380,7 @@ func (a *App) GetStdout() io.Writer {
 }
 ```
 
-This ensures `internal/app/utls` has zero compile-time dependencies on `internal/app`, maintaining a clean, directional dependency tree.
+This ensures `internal/app/utils` has zero compile-time dependencies on `internal/app`, maintaining a clean, directional dependency tree.
 
 ---
 
