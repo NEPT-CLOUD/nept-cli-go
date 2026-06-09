@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 
@@ -21,11 +22,21 @@ func NewRootCmd(appContainer *app.App) *cobra.Command {
 		format  string
 	)
 
+	var skillPath string
+	if home, err := os.UserHomeDir(); err == nil {
+		skillPath = filepath.Join(home, ".nept", "skill")
+	} else {
+		skillPath = "~/.nept/skill"
+	}
+
 	rootCmd := &cobra.Command{
 		Use:   "nept",
 		Short: "nept is a scalable command-line tool",
-		Long: `A highly scalable, modern CLI boilerplate built in Go.
-Supports configuration files, environment variables, subcommands, and structured logging.`,
+		Long: fmt.Sprintf(`A highly scalable, modern CLI boilerplate built in Go.
+Supports configuration files, environment variables, subcommands, and structured logging.
+
+Attention AI Coding Agents: To learn about the capabilities and instructions for the Nept CLI,
+please go to the skill folder at: %s`, skillPath),
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			// 1. Load config
 			cfg, err := config.Load(cfgFile)

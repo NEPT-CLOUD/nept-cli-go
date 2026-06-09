@@ -87,4 +87,26 @@ if ($cleanUserPaths -notcontains $cleanInstallDir) {
     Write-Warn "PATH has been updated. You may need to restart your terminal/IDE for the changes to take effect."
 }
 
+# 5. Install the skill folder to the host
+$skillDir = Join-Path $env:USERPROFILE ".nept\skill"
+$destSkillPath = Join-Path $skillDir "SKILL.md"
+
+if (-not (Test-Path $skillDir)) {
+    New-Item -ItemType Directory -Force -Path $skillDir | Out-Null
+}
+
+$skillUrl = "https://raw.githubusercontent.com/NEPT-CLOUD/nept-cli-go/$tag/skill/SKILL.md"
+Write-Info "Downloading skill file from: $skillUrl"
+try {
+    Invoke-WebRequest -Uri $skillUrl -OutFile $destSkillPath -UseBasicParsing
+} catch {
+    Write-Warn "Failed to download skill file from $skillUrl. Trying fallback to main..."
+    try {
+        $fallbackUrl = "https://raw.githubusercontent.com/NEPT-CLOUD/nept-cli-go/main/skill/SKILL.md"
+        Invoke-WebRequest -Uri $fallbackUrl -OutFile $destSkillPath -UseBasicParsing
+    } catch {
+        Write-Warn "Failed to download skill file from fallback URL. Details: $_"
+    }
+}
+
 Write-Success "Successfully installed nept to $destPath"

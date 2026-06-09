@@ -135,4 +135,22 @@ else
     fi
 fi
 
+# Install the skill folder to the host
+SKILL_DIR="$HOME/.nept/skill"
+info "Installing skill folder to $SKILL_DIR..."
+mkdir -p "$SKILL_DIR"
+
+SKILL_URL="https://raw.githubusercontent.com/NEPT-CLOUD/nept-cli-go/${TAG}/skill/SKILL.md"
+if [ "$DOWNLOADER" = "curl" ]; then
+    curl -fLo "$SKILL_DIR/SKILL.md" "$SKILL_URL" || {
+        warn "Failed to download skill file from $SKILL_URL. Trying fallback to main..."
+        curl -fLo "$SKILL_DIR/SKILL.md" "https://raw.githubusercontent.com/NEPT-CLOUD/nept-cli-go/main/skill/SKILL.md" || warn "Failed to download skill file from fallback URL"
+    }
+else
+    wget -qO "$SKILL_DIR/SKILL.md" "$SKILL_URL" || {
+        warn "Failed to download skill file from $SKILL_URL. Trying fallback to main..."
+        wget -qO "$SKILL_DIR/SKILL.md" "https://raw.githubusercontent.com/NEPT-CLOUD/nept-cli-go/main/skill/SKILL.md" || warn "Failed to download skill file from fallback URL"
+    }
+fi
+
 success "Successfully installed nept to $INSTALL_DIR/nept${EXT}"

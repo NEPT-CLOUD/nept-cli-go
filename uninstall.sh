@@ -99,6 +99,14 @@ for path in $BINARY_PATHS; do
     fi
 done
 
+# Clean up skill directory if it exists
+SKILL_DIR="$HOME/.nept/skill"
+if [ -d "$SKILL_DIR" ]; then
+    info "Cleaning up skill directory: $SKILL_DIR"
+    rm -rf "$SKILL_DIR"
+    REMOVED_ANY=true
+fi
+
 # Remove Windows local installation folder if it exists
 if [ "$OS" = "windows" ]; then
     WIN_DIR="$HOME/.nept"
@@ -107,6 +115,12 @@ if [ "$OS" = "windows" ]; then
         rm -rf "$WIN_DIR"
         REMOVED_ANY=true
     fi
+fi
+
+# If .nept directory is empty, clean it up
+NEPT_DIR="$HOME/.nept"
+if [ -d "$NEPT_DIR" ] && [ -z "$(ls -A "$NEPT_DIR" 2>/dev/null)" ]; then
+    rmdir "$NEPT_DIR" 2>/dev/null || true
 fi
 
 # Prompt or remove configuration file
