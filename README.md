@@ -5,9 +5,10 @@ A production-grade, highly scalable Go Command-Line Interface (CLI) designed to 
 ---
 
 ## Table of Contents
-1. [Core Features & Modes](#1-core-features--modes)
-2. [Configuration & Authentication Hierarchy](#2-configuration--authentication-hierarchy)
-3. [Subcommand Reference & Examples](#3-subcommand-reference--examples)
+1. [Installation & Uninstallation](#1-installation--uninstallation)
+2. [Core Features & Modes](#2-core-features--modes)
+3. [Configuration & Authentication Hierarchy](#3-configuration--authentication-hierarchy)
+4. [Subcommand Reference & Examples](#4-subcommand-reference--examples)
     - [`nept status`](#nept-status)
     - [`nept login`](#nept-login)
     - [`nept config`](#nept-config)
@@ -16,14 +17,55 @@ A production-grade, highly scalable Go Command-Line Interface (CLI) designed to 
     - [`nept db deploy`](#nept-db-deploy)
     - [`nept restart` / `delete`](#nept-restart--delete)
     - [`nept domain add`](#nept-domain-add)
-4. [Framework Auto-Detection Presets](#4-framework-auto-detection-presets)
-5. [In-Memory Zipping & Ignore Rules](#5-in-memory-zipping--ignore-rules)
-6. [Cycle-Free Clean Architecture](#6-cycle-free-clean-architecture)
-7. [Testing & Subcommand Extension Guide](#7-testing--subcommand-extension-guide)
+5. [Framework Auto-Detection Presets](#5-framework-auto-detection-presets)
+6. [In-Memory Zipping & Ignore Rules](#6-in-memory-zipping--ignore-rules)
+7. [Cycle-Free Clean Architecture](#7-cycle-free-clean-architecture)
+8. [Testing & Subcommand Extension Guide](#8-testing--subcommand-extension-guide)
 
 ---
 
-## 1. Core Features & Modes
+## 1. Installation & Uninstallation
+
+Install the Nept CLI on your system using the official installation scripts:
+
+### macOS / Linux (Shell)
+
+You can download and run the installer shell script via `curl` or `wget`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NEPT-CLOUD/nept-cli-go/main/install.sh | sh
+```
+
+### Windows (PowerShell)
+
+You can run the installer PowerShell script directly:
+
+```powershell
+powershell -c "irm https://raw.githubusercontent.com/NEPT-CLOUD/nept-cli-go/main/install.ps1 | iex"
+```
+
+### Uninstallation
+
+If you need to completely remove the Nept CLI, its configurations, and the downloaded skill files from your system, run the appropriate command for your OS:
+
+#### macOS / Linux (Shell)
+```bash
+curl -fsSL https://raw.githubusercontent.com/NEPT-CLOUD/nept-cli-go/main/uninstall.sh | sh
+```
+
+#### Windows (PowerShell)
+```powershell
+powershell -c "irm https://raw.githubusercontent.com/NEPT-CLOUD/nept-cli-go/main/uninstall.ps1 | iex"
+```
+
+#### What gets cleaned up:
+* The `nept` executable binary from your system PATH (e.g. `/usr/local/bin/nept` or `~/.nept/bin/nept.exe`).
+* The local skill guidelines folder (e.g. `~/.nept/skill` or `~/.nept` directory).
+* Optional prompt to remove your global user configuration file (`~/.nept.yaml`).
+
+---
+
+## 2. Core Features & Modes
 
 The CLI dynamically detects its execution environment and switches between two operational modes:
 
@@ -36,7 +78,7 @@ This makes the CLI highly interactive for developers during local workflows, and
 
 ---
 
-## 2. Configuration & Authentication Hierarchy
+## 3. Configuration & Authentication Hierarchy
 
 Authentication and connection parameters are resolved hierarchically from three distinct layers, in order of precedence:
 
@@ -51,7 +93,7 @@ Authentication and connection parameters are resolved hierarchically from three 
 
 ---
 
-## 3. Subcommand Reference & Examples
+## 4. Subcommand Reference & Examples
 
 ### `nept status`
 Checks the reachability and health of the backend engine (`/api/health`).
@@ -236,7 +278,7 @@ SSL: pending_validation (txt)
 
 ---
 
-## 4. Framework Auto-Detection Presets
+## 5. Framework Auto-Detection Presets
 
 The CLI automatically inspects directory files to match indicator dependencies against default presets:
 
@@ -252,7 +294,7 @@ The CLI automatically inspects directory files to match indicator dependencies a
 
 ---
 
-## 5. In-Memory Zipping & Ignore Rules
+## 6. In-Memory Zipping & Ignore Rules
 
 When packaging directories, the CLI compresses files in-memory using `archive/zip` to optimize bandwidth and speed.
 
@@ -271,7 +313,7 @@ These patterns are parsed, anchored or unanchored, and translated into compiled 
 
 ---
 
-## 6. Cycle-Free Clean Architecture
+## 7. Cycle-Free Clean Architecture
 
 To avoid Go package import loops (`internal/app` importing `internal/config`, and `internal/app/utls` importing `internal/app` to call `App`), the utility package defines a decoupled `APIContainer` interface:
 
@@ -303,7 +345,7 @@ This ensures `internal/app/utls` has zero compile-time dependencies on `internal
 
 ---
 
-## 7. Testing & Subcommand Extension Guide
+## 8. Testing & Subcommand Extension Guide
 
 All subcommands are completely unit-testable by injecting a mocked `app.App` container containing buffered IO streams.
 
